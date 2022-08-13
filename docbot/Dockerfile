@@ -15,12 +15,13 @@
 # specific language governing permissions and limitations
 # under the License.
 
-name: 'Documentation Bot'
-description: 'Automatically label pull requests based on the checked task list'
-branding:
-  icon: 'check'
-  color: 'green'
+FROM golang:1.18-alpine AS build
 
-runs:
-  using: docker
-  image: ./Dockerfile
+WORKDIR /docbot-build
+COPY . .
+RUN go build
+
+FROM alpine:3 AS bin
+
+COPY --from=build /docbot-build/docbot /bin/docbot
+ENTRYPOINT ["/bin/docbot"]
